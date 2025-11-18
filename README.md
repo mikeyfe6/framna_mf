@@ -19,13 +19,20 @@ A Next.js portfolio website with server-side rendering, static generation, and c
 
 ## Setup
 
-### 1. Install Dependencies
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/mikeyfe6/framna_mf.git
+cd framna_mf
+```
+
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Configure Environment Variables
+### 3. Configure Environment Variables
 
 Create a `.env.local` file in the root directory:
 
@@ -35,7 +42,7 @@ NEXT_PUBLIC_API_URL=https://691c52ba3aaeed735c9065fc.mockapi.io
 
 **Note:** The app is already connected to a working MockAPI endpoint. You can use it as-is for testing, or replace the URL with your own MockAPI endpoint if you want to manage your own data.
 
-### 3. MockAPI Setup (Optional)
+### 4. MockAPI Setup (Optional)
 
 If you want to use your own MockAPI endpoint:
 
