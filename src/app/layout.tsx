@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import Header from "@/components/Header";
-
-import "@/styles/globals.scss";
+import Layout from "@/components/Layout";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -31,8 +30,10 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable}`}
                 suppressHydrationWarning
             >
-                <Header />
-                {children}
+                <Layout>
+                    <Header />
+                    {children}
+                </Layout>
             </body>
         </html>
     );

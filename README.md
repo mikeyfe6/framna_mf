@@ -6,16 +6,38 @@ A Next.js portfolio website with server-side rendering, static generation, and c
 
 -   **Next.js 16** (App Router)
 -   **TypeScript**
--   **Styled Components**
--   **SASS/SCSS**
+-   **Styled Components** (with createGlobalStyle)
 -   **React Testing Library & Jest**
 -   **MockAPI** (for backend API)
 
-## Architecture
+## Architecture & Rendering Strategy
 
--   **Home Page** (`/`) - Client Component displaying portfolio projects
--   **About Page** (`/about`) - Static Generation (SSG)
+This project leverages different Next.js rendering techniques for optimal performance:
+
+### Server Components with ISR (Incremental Static Regeneration)
+
+-   **Home Page** (`/`) - Server Component with ISR (revalidates every 10 seconds)
+    -   Projects are fetched server-side and cached
+    -   Automatically refreshes in the background
+    -   Better SEO and initial load performance
+
+### Static Site Generation (SSG)
+
+-   **About Page** (`/about`) - Pure Server Component, statically generated at build time
+    -   No client-side JavaScript for rendering
+    -   Fastest possible page loads
+
+### Client-Side Rendering (CSR)
+
 -   **Admin Page** (`/admin`) - Client Component with full CRUD operations
+    -   Interactive forms and state management
+    -   Real-time updates without page reloads
+
+**Why this approach?**
+
+-   Public pages (Home, About) benefit from server rendering for SEO and performance
+-   Admin functionality requires client-side interactivity for CRUD operations
+-   ISR on home page ensures fresh content without rebuilding
 
 ## Setup
 
@@ -80,11 +102,36 @@ npm run build
 npm start
 ```
 
+## Deployment
+
+### Deploy to Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) and sign in
+3. Click "New Project" and import your repository
+4. Add environment variable:
+    - `NEXT_PUBLIC_API_URL` = your MockAPI endpoint
+5. Click "Deploy"
+
+Vercel automatically detects Next.js and optimizes the build.
+
+### Manual Deployment
+
+For other platforms (Netlify, Railway, etc.):
+
+```bash
+npm run build
+```
+
+Deploy the `.next` folder with the start command: `npm start`
+
+Ensure Node.js 18+ is available on the server.
+
 ## Pages
 
--   `/` - Home page with portfolio showcase (client-side)
--   `/about` - About page (static)
--   `/admin` - Admin panel for managing projects (client-side CRUD)
+-   `/` - Home page with portfolio showcase (Server Component + ISR)
+-   `/about` - About page (Static Site Generation)
+-   `/admin` - Admin panel for managing projects (Client-side CRUD)
 
 ## Project Structure
 
@@ -93,24 +140,69 @@ framna_mf/
 ├── src/
 │   ├── app/
 │   │   ├── about/
+│   │   │   └── page.tsx          # SSG About page
 │   │   ├── admin/
-│   │   ├── layout.tsx
-│   │   └── page.tsx
+│   │   │   └── page.tsx          # CSR Admin panel
+│   │   ├── layout.tsx            # Root layout
+│   │   └── page.tsx              # ISR Home page
 │   ├── components/
+│   │   ├── admin/
+│   │   │   ├── ProjectItem.tsx
+│   │   │   ├── ProjectForm.tsx
+│   │   │   └── ProjectList.tsx
 │   │   ├── Header.tsx
-│   │   └── ProjectCard.tsx
+│   │   ├── Hero.tsx
+│   │   ├── ProjectCard.tsx
+│   │   ├── ProjectsGrid.tsx
+│   │   └── Layout.tsx
+│   ├── hooks/
+│   │   └── useAdmin.ts   # Admin CRUD logic
 │   ├── lib/
-│   │   └── api.ts
+│   │   └── api.ts                # Centralized API functions
+│   ├── styles/
+│   │   └── GlobalStyles.tsx      # Styled Components global styles
 │   └── types/
-│       └── project.ts
-├── styles/
-│   └── globals.scss
+│       └── project.ts            # TypeScript interfaces
 ├── __tests__/
-│   ├── Header.test.tsx
-│   ├── ProjectCard.test.tsx
+│   ├── components/
+│   │   ├── admin/
+│   │   │   └── ProjectForm.test.tsx
+│   │   ├── Header.test.tsx
+│   │   ├── ProjectCard.test.tsx
+│   │   └── ProjectsGrid.test.tsx
+│   ├── lib/
+│   │   └── api.test.ts
 │   └── api.test.ts
 └── ...
 ```
+
+## Code Architecture
+
+### Component Composition
+
+-   **Atomic Design**: Small, reusable components (`Hero`, `ProjectCard`, `ProjectItem`)
+-   **Container/Presentational**: Business logic in hooks (`useAdmin`), UI in components
+-   **Server/Client Separation**: Server components for data fetching, client for interactivity
+
+### API Layer
+
+All HTTP operations centralized in `src/lib/api.ts`:
+
+-   `fetchProjects()` - GET with ISR caching
+-   `createProject()` - POST
+-   `updateProject()` - PUT
+-   `deleteProject()` - DELETE
+
+Consistent error handling across all endpoints.
+
+### Styling Strategy
+
+**Styled Components** for all styling:
+
+-   Component-scoped styles prevent conflicts
+-   TypeScript support for props
+-   Global styles via `createGlobalStyle`
+-   No CSS-in-JS runtime overhead with Next.js compiler
 
 ---
 
